@@ -1,0 +1,4 @@
+title,company,location,salary,description,skills,min_salary,max_salary,salary_period
+000 - $90,000 per year, Looking for someone with Python, SQL, and Excel experience.,['excel'],,,unknown
+ Must know Python, Pandas, and machine learning.,,,[],,,
+000 a year, Requires Power BI, SQL, and Tableau expertise.,,[],,,unknown
