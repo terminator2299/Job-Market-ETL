@@ -1,3 +1,0 @@
-title,company,location,description,salary,salary_parsed,skills
-Data Scientist,ABC Corp,New York,"Experience with Python, ML","$100,000",100000,"['experience', 'with', 'python', 'ml']"
-Software Engineer,XYZ Inc,San Francisco,"Java, Cloud skills needed","$120,000",120000,"['java', 'cloud', 'skills', 'needed']"
