@@ -71,3 +71,4 @@ Job-Market-ETL/
 - Add geo-location based heatmaps for job distribution.
 - Implement automated data refresh from live job portals.
 - Expand skill correlation analysis with interactive network graphs.
+- Expand skill correlation analysis with interactive network graphs.
