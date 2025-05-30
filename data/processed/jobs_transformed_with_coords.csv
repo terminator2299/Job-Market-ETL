@@ -1,0 +1,6 @@
+title,company,location,salary_min,salary_max,description,skills,latitude,longitude
+Data Scientist,Google,New York,120000,120000,"Looking for Python, SQL, ML experience","Python, SQL, ML",40.7127281,-74.0060152
+Machine Learning Engineer,Facebook,London,110000,110000,"Experience with PyTorch, Python, and big data","PyTorch, Python, big data",51.4893335,-0.1440551
+Data Analyst,Amazon,Bangalore,800000,800000,"Must have Excel, SQL, PowerBI skills","Excel, SQL, PowerBI",12.9881567,77.6226
+Data Engineer,Microsoft,Hyderabad,1500000,1500000,"ETL pipelines, Spark, Azure experience needed","ETL, Spark, Azure",17.360589,78.4740613
+AI Researcher,DeepMind,London,130000,130000,"Strong in NLP, deep learning, Python","NLP, deep learning, Python",51.4893335,-0.1440551
