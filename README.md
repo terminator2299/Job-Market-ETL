@@ -1,74 +1,78 @@
-# Job Market ETL & Dashboard Project
+# Job Market ETL Dashboard
 
-## Overview
-This project extracts, transforms, and loads job market data from multiple sources to provide actionable insights on job openings, salaries, companies hiring, and skills correlations. It includes an interactive Streamlit dashboard for exploring and visualizing job market trends dynamically.
+A real-time job market insights dashboard that fetches data from the Adzuna API to provide up-to-date information about job opportunities, salaries, and market trends.
 
 ## Features
-- **Data Processing Pipeline:** ETL scripts to clean and unify job data from multiple countries and sources.
-- **Interactive Dashboard:**  
-  - Salary distribution histograms  
-  - Top hiring companies bar charts  
-  - Role-wise salary comparison  
-  - Skill correlation heatmap  
-- **Custom Filters:** Filter by location, role, salary range, and skills to refine data views.
-- **Real-time Visualization:** Dynamic update of charts and data based on user selections.
+
+- Real-time job market data from Adzuna API
+- Interactive filters for country, job category, location, and skills
+- Salary distribution analysis
+- Top companies hiring analysis
+- Role comparison with salary ranges
+- Skills correlation analysis
+- Responsive and user-friendly interface
+
+## Setup
+
+1. Clone the repository:
+```bash
+git clone <repository-url>
+cd Job-Market-ETL
+```
+
+2. Create and activate a virtual environment:
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+```
+
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+4. Configure API credentials:
+   - Sign up for an Adzuna API key at https://developer.adzuna.com/
+   - Update the `config.py` file with your API credentials:
+     ```python
+     ADZUNA_APP_ID = "your_app_id_here"
+     ADZUNA_API_KEY = "your_api_key_here"
+     ```
+
+5. Run the application:
+```bash
+streamlit run app.py
+```
+
+## Usage
+
+1. Select a country from the dropdown menu
+2. Choose a job category or enter a specific job title
+3. Use the filters in the sidebar to narrow down results:
+   - Location
+   - Job roles
+   - Required skills
+   - Salary range
+4. Explore the different tabs for various insights:
+   - Salary Distribution
+   - Top Companies
+   - Role Comparison
+   - Skills Correlation
 
 ## Technologies Used
-- Python (pandas, numpy, scikit-learn)
-- Streamlit for interactive dashboard
-- Seaborn and Matplotlib for visualization
-- Pydeck (planned for geo visualizations)
-- Git for version control
 
-## Getting Started
+- Python
+- Streamlit
+- Pandas
+- Matplotlib
+- Seaborn
+- Scikit-learn
+- Adzuna API
 
-### Prerequisites
-- Python 3.8+
-- pip
+## Contributing
 
-### Installation
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/yourusername/Job-Market-ETL.git
-   cd Job-Market-ETL
-   ```
+Feel free to submit issues and enhancement requests!
 
-2. **Create and activate a virtual environment**
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # macOS/Linux
-   .\venv\Scripts\activate   # Windows
-   ```
+## License
 
-3. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Run the dashboard**
-   ```bash
-   streamlit run notebooks/dashboard.py
-   ```
-
-## Project Structure
-```
-Job-Market-ETL/
-│
-├── data/                   # Raw and processed datasets
-├── notebooks/              # Streamlit app and analysis scripts
-│   └── dashboard.py        # Main dashboard app
-├── scripts/                # ETL and data processing scripts
-├── requirements.txt        # Python dependencies
-└── README.md               # Project documentation
-```
-
-## How to Use
-1. Use sidebar filters to select locations, job roles, salary ranges, and skills.
-2. Explore different tabs for salary distributions, top companies hiring, role-based salary comparisons, and skills correlation heatmaps.
-3. Insights dynamically update based on filters.
-
-## Future Improvements
-- Add geo-location based heatmaps for job distribution.
-- Implement automated data refresh from live job portals.
-- Expand skill correlation analysis with interactive network graphs.
-- Expand skill correlation analysis with interactive network graphs.
+This project is licensed under the MIT License - see the LICENSE file for details.
