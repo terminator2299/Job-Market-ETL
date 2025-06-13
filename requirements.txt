@@ -4,3 +4,4 @@ matplotlib==3.10.3
 seaborn==0.13.2
 scikit-learn==1.4.2
 pydeck==0.9.1
+flask
