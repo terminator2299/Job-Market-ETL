@@ -2,6 +2,10 @@
 
 A real-time job market insights dashboard that fetches data from the Adzuna API to provide up-to-date information about job opportunities, salaries, and market trends.
 
+## Preview
+
+Check out here - LiveLink(https://job-market-etl.streamlit.app/)
+
 ## Features
 
 - Real-time job market data from Adzuna API
@@ -76,3 +80,4 @@ Feel free to submit issues and enhancement requests!
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
