@@ -7,3 +7,5 @@ pydeck
 flask
 requests
 python-dotenv
+flask_cors
+spacy
