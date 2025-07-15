@@ -1,15 +1,24 @@
 import streamlit as st
-st.set_page_config(page_title="Job Market ETL & Analysis", layout="wide")
-
 import requests
-from bs4 import BeautifulSoup
 import pandas as pd
 import spacy
 from collections import Counter
 import io
-import re
+import os
+from dotenv import load_dotenv
 
-# Custom CSS for header and table
+# Load environment variables from .env file if present
+load_dotenv()
+
+# Load Adzuna API credentials from environment variables
+ADZUNA_APP_ID = os.environ.get('ADZUNA_APP_ID')
+ADZUNA_APP_KEY = os.environ.get('ADZUNA_APP_KEY')
+
+if not ADZUNA_APP_ID or not ADZUNA_APP_KEY:
+    st.error('Adzuna API credentials not found. Please set ADZUNA_APP_ID and ADZUNA_APP_KEY in your environment or .env file.')
+    st.stop()
+
+# Custom CSS for header, summary, and table
 st.markdown("""
     <style>
     .main-header {
@@ -19,22 +28,35 @@ st.markdown("""
         border-radius: 0 0 1rem 1rem;
         margin-bottom: 2rem;
         text-align: center;
+        box-shadow: 0 4px 16px rgba(79,142,247,0.15);
     }
     .summary-card {
         background: #f0f4fa;
         border-radius: 1rem;
-        padding: 1.5rem;
+        padding: 1.5rem 2rem;
         margin-bottom: 2rem;
         display: flex;
         justify-content: space-around;
         font-size: 1.2rem;
         font-weight: 500;
+        box-shadow: 0 2px 8px rgba(79,142,247,0.08);
     }
     .summary-item {
         margin: 0 2rem;
+        text-align: center;
+    }
+    .summary-icon {
+        font-size: 2rem;
+        margin-bottom: 0.2rem;
+        display: block;
     }
     .stDataFrame th, .stDataFrame td {
         font-size: 1rem !important;
+    }
+    .job-table {
+        border-radius: 1rem;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(79,142,247,0.08);
     }
     </style>
 """, unsafe_allow_html=True)
@@ -46,77 +68,46 @@ def load_spacy():
 nlp = load_spacy()
 
 # Header
-st.markdown('<div class="main-header"><h1>Job Market ETL & Analysis</h1><h3>Scrape, Analyze, and Visualize Tech Jobs in Real Time</h3></div>', unsafe_allow_html=True)
+st.title('Job Market ETL & Analysis')
+st.markdown('Real-Time Indian Tech Jobs • Powered by Adzuna API')
 
-# Sidebar: Job source, tech stack/keyword search, and location
-st.sidebar.header('Search Jobs')
-source = st.sidebar.selectbox('Job Source', ['Global (RemoteOK)', 'India (Indeed India)'])
-search_term = st.sidebar.text_input('Enter tech stack or keyword (e.g., python, javascript, react, devops):', value='python')
-if source == 'India (Indeed India)':
-    location_filter = st.sidebar.text_input('Location (leave blank for all India):', value='')
-else:
-    st.sidebar.markdown('**Note:** RemoteOK only lists remote jobs.')
-    location_filter = st.sidebar.text_input('Location (optional, for filtering results):', value='')
+# Sidebar: Only Adzuna API for Indian jobs
+st.sidebar.header('🔎 Search Jobs')
+st.sidebar.markdown('**Source:** India (Adzuna API, Real-Time)')
+search_term = st.sidebar.text_input('Tech stack or keyword', value='', help='e.g., python, javascript, react, devops')
+location_filter = st.sidebar.text_input('Location (leave blank for all India)', value='', help='e.g., Bangalore, Mumbai, Delhi')
 
-# Scrape jobs from RemoteOK for any tech stack
+# Adzuna API scraper for Indian jobs
 @st.cache_data(show_spinner=False)
-def scrape_remoteok(keyword):
-    url = f'https://remoteok.com/remote-{keyword}-jobs'
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
+def scrape_adzuna_india(keyword, location):
+    url = f'https://api.adzuna.com/v1/api/jobs/in/search/1'
+    params = {
+        'app_id': ADZUNA_APP_ID,
+        'app_key': ADZUNA_APP_KEY,
+        'results_per_page': 30,
+        'what': keyword,
+        'content-type': 'application/json',
     }
-    response = requests.get(url, headers=headers)
-    soup = BeautifulSoup(response.text, 'html.parser')
+    if location.strip():
+        params['where'] = location
+    response = requests.get(url, params=params)
     jobs = []
-    for tr in soup.find_all('tr', class_='job'):
-        job = {}
-        title_tag = tr.find('h2', itemprop='title')
-        company_tag = tr.find('h3', itemprop='name')
-        link_tag = tr.find('a', class_='preventLink', href=True)
-        desc_tag = tr.find('td', class_='description')
-        job['title'] = title_tag.text.strip() if title_tag else ''
-        job['company'] = company_tag.text.strip() if company_tag else ''
-        job['url'] = 'https://remoteok.com' + link_tag['href'] if link_tag else ''
-        job['description'] = desc_tag.text.strip() if desc_tag else ''
-        job['location'] = 'Remote'
-        jobs.append(job)
+    if response.status_code == 200:
+        data = response.json()
+        for res in data.get('results', []):
+            job = {
+                'title': res.get('title', ''),
+                'company': res.get('company', {}).get('display_name', ''),
+                'location': res.get('location', {}).get('display_name', ''),
+                'description': res.get('description', ''),
+                'url': res.get('redirect_url', '')
+            }
+            jobs.append(job)
     return jobs
 
-# Scrape jobs from Indeed India for any tech stack and location
-@st.cache_data(show_spinner=False)
-def scrape_indeed_india(keyword, location):
-    keyword_q = re.sub(r'\s+', '+', keyword.strip())
-    location_q = re.sub(r'\s+', '+', location.strip()) if location.strip() else ''
-    url = f'https://in.indeed.com/jobs?q={keyword_q}'
-    if location_q:
-        url += f'&l={location_q}'
-    headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.3'
-    }
-    response = requests.get(url, headers=headers)
-    soup = BeautifulSoup(response.text, 'html.parser')
-    jobs = []
-    for div in soup.find_all('div', class_='job_seen_beacon'):
-        job = {}
-        title_tag = div.find('h2', class_='jobTitle')
-        company_tag = div.find('span', class_='companyName')
-        location_tag = div.find('div', class_='companyLocation')
-        link_tag = title_tag.find('a', href=True) if title_tag else None
-        desc_tag = div.find('div', class_='job-snippet')
-        job['title'] = title_tag.text.strip() if title_tag else ''
-        job['company'] = company_tag.text.strip() if company_tag else ''
-        job['url'] = 'https://in.indeed.com' + link_tag['href'] if link_tag else ''
-        job['description'] = desc_tag.text.strip().replace('\n', ' ') if desc_tag else ''
-        job['location'] = location_tag.text.strip() if location_tag else 'India'
-        jobs.append(job)
-    return jobs
-
-# Scrape jobs based on user selection
-with st.spinner(f'Scraping jobs for "{search_term}" from {source}...'):
-    if source == 'Global (RemoteOK)':
-        jobs = scrape_remoteok(search_term.lower())
-    else:
-        jobs = scrape_indeed_india(search_term, location_filter)
+# Scrape jobs using Adzuna only
+with st.spinner(f'Fetching real-time jobs for "{search_term}" from Adzuna...'):
+    jobs = scrape_adzuna_india(search_term, location_filter)
     for job in jobs:
         for key in ['title', 'company', 'url', 'description', 'location']:
             if key not in job:
@@ -125,17 +116,12 @@ with st.spinner(f'Scraping jobs for "{search_term}" from {source}...'):
 
 # Fallback: If no jobs, allow user to upload or use sample data
 if df.empty or 'title' not in df.columns or 'company' not in df.columns:
-    st.error(f"No job data found for '{search_term}' in {source}. You can upload a CSV or use sample data.")
+    st.error(f"No job data found for '{search_term}' in India (Adzuna API, Real-Time). You can upload a CSV or use sample data.")
     uploaded_file = st.file_uploader("Upload a CSV file with columns: title, company, url, description, location", type=["csv"])
     use_sample = st.button("Use Sample Data")
-    use_india_sample = st.button("Load Indian Sample Data (Demo Mode)")
     if uploaded_file is not None:
         df = pd.read_csv(uploaded_file)
         st.success("Loaded uploaded data!")
-    elif use_india_sample:
-        india_sample_csv = '''title,company,url,description,location\nSoftware Engineer,TCS,https://tcs.com/job1,Work on backend systems for banking clients.,Bangalore\nFrontend Developer,Infosys,https://infosys.com/job2,React.js developer for enterprise web apps.,Pune\nData Scientist,Flipkart,https://flipkart.com/job3,Analyze e-commerce data and build ML models.,Bangalore\nDevOps Engineer,Wipro,https://wipro.com/job4,CI/CD pipelines and cloud infra automation.,Hyderabad\nBackend Developer,Zomato,https://zomato.com/job5,Python/Django backend for food delivery platform.,Gurgaon\nFull Stack Developer,Paytm,https://paytm.com/job6,Node.js and React full stack role.,Noida\nMobile App Developer,Swiggy,https://swiggy.com/job7,Flutter/React Native for food delivery app.,Bangalore\nQA Engineer,Freshworks,https://freshworks.com/job8,Manual and automation testing for SaaS products.,Chennai\nCloud Architect,Amazon India,https://amazon.in/job9,AWS cloud solutions for Indian enterprise clients.,Bangalore\nAI Engineer,InMobi,https://inmobi.com/job10,Build AI/ML features for ad tech.,Bangalore\n'''
-        df = pd.read_csv(io.StringIO(india_sample_csv))
-        st.success("Loaded Indian sample data!")
     elif use_sample:
         sample_csv = '''title,company,url,description,location\nPython Developer,Acme Corp,https://example.com/job1,We are looking for a Python Developer in New York.,New York\nData Scientist,Globex,https://example.com/job2,Remote Data Scientist role in San Francisco.,San Francisco\nBackend Engineer,Initech,https://example.com/job3,Backend Engineer needed in London.,London\n'''
         df = pd.read_csv(io.StringIO(sample_csv))
@@ -159,7 +145,7 @@ else:
     df['roles'], df['skills'], df['locations'] = zip(*df['description'].fillna('').map(extract_entities))
 
 # Sidebar filters for job title, company, and location
-st.sidebar.header('Filters')
+st.sidebar.header('🧰 Filters')
 all_titles = sorted(df['title'].unique())
 selected_titles = st.sidebar.multiselect('Job Title', all_titles, default=all_titles)
 all_companies = sorted(df['company'].unique())
@@ -182,22 +168,15 @@ filtered_df = df[
 ]
 filtered_df = filtered_df[filtered_df.apply(location_match, axis=1)]
 
-# --- Summary Card ---
-total_jobs = len(filtered_df)
-top_company = filtered_df['company'].value_counts().idxmax() if not filtered_df.empty else 'N/A'
-top_location = 'N/A'
-if 'locations' in filtered_df.columns and filtered_df['locations'].apply(lambda x: len(x) > 0).any():
-    locations_flat = [loc for sublist in filtered_df['locations'] for loc in sublist]
-    if locations_flat:
-        top_location = pd.Series(locations_flat).value_counts().idxmax()
+# --- Dynamic Subtitle ---
+st.markdown(f"<h4 style='color:#235390;margin-top:-1.5rem;margin-bottom:1.5rem;'>🔎 Showing jobs for <b>{search_term.title() or 'All Tech Stacks'}</b> in <b>{location_filter or 'India'}</b></h4>", unsafe_allow_html=True)
 
-st.markdown(f'''
-<div class="summary-card">
-    <div class="summary-item">Total Jobs: <b>{total_jobs}</b></div>
-    <div class="summary-item">Top Company: <b>{top_company}</b></div>
-    <div class="summary-item">Top Location: <b>{top_location}</b></div>
-</div>
-''', unsafe_allow_html=True)
+# --- Total Jobs Small Text ---
+total_jobs = len(filtered_df)
+st.markdown(f"<p style='color:#235390;font-size:1.1rem;margin-top:-1rem;margin-bottom:1.5rem;'>Total jobs found: <b>{total_jobs}</b></p>", unsafe_allow_html=True)
+
+# --- Remove Top Location logic and UI ---
+# (No top_location variable, no summary card for location)
 
 # --- Main Table ---
 st.subheader('Job Listings')
@@ -206,7 +185,7 @@ def make_clickable(val):
 
 styled_table = filtered_df[['title', 'company', 'location', 'url', 'description']].copy()
 styled_table['url'] = styled_table['url'].apply(make_clickable)
-st.write(styled_table.to_html(escape=False, index=False), unsafe_allow_html=True)
+st.write(styled_table.to_html(escape=False, index=False, classes='job-table'), unsafe_allow_html=True)
 
 # --- Analysis: Top job titles, companies, locations ---
 st.subheader('Analysis & Visualization')

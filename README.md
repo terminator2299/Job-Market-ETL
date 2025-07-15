@@ -1,83 +1,88 @@
-# Job Market ETL Dashboard
+# 🇮🇳 Job Market ETL & Analysis (India, Real-Time)
 
-A real-time job market insights dashboard that fetches data from the Adzuna API to provide up-to-date information about job opportunities, salaries, and market trends.
+A modern Streamlit dashboard to search, analyze, and visualize real-time Indian tech jobs using the Adzuna API. Showcases ETL, NLP, and data visualization skills with a beautiful, interactive UI.
 
-## Preview
+---
 
-Check out here - LiveLink(https://job-market-etl.streamlit.app/)
+## 🚀 Features
+- **Real-time Indian job search** (powered by Adzuna API)
+- Filter by tech stack, location, job title, and company
+- NLP-based extraction of roles and locations from job descriptions (spaCy)
+- Interactive analytics: top job titles, companies, and locations
+- Download filtered job data as CSV
+- Clean, modern, and mobile-friendly UI
+- Secure: API credentials loaded from `.env` (never hardcoded)
 
-## Features
+---
 
-- Real-time job market data from Adzuna API
-- Interactive filters for country, job category, location, and skills
-- Salary distribution analysis
-- Top companies hiring analysis
-- Role comparison with salary ranges
-- Skills correlation analysis
-- Responsive and user-friendly interface
+## 🛠️ Setup Instructions
 
-## Setup
+1. **Clone the repo:**
+   ```sh
+   git clone <your-repo-url>
+   cd Job-Market-ETL
+   ```
 
-1. Clone the repository:
-```bash
-git clone <repository-url>
-cd Job-Market-ETL
-```
+2. **Create and activate a virtual environment (optional but recommended):**
+   ```sh
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-2. Create and activate a virtual environment:
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
+3. **Install dependencies:**
+   ```sh
+   pip install -r requirements.txt
+   ```
 
-3. Install dependencies:
-```bash
-pip install -r requirements.txt
-```
-
-4. Configure API credentials:
-   - Sign up for an Adzuna API key at https://developer.adzuna.com/
-   - Update the `config.py` file with your API credentials:
-     ```python
-     ADZUNA_APP_ID = "your_app_id_here"
-     ADZUNA_API_KEY = "your_api_key_here"
+4. **Set up Adzuna API credentials:**
+   - Register for a free API key at [Adzuna Developer Portal](https://developer.adzuna.com/)
+   - Create a `.env` file in your project root:
+     ```
+     ADZUNA_APP_ID=your_app_id
+     ADZUNA_APP_KEY=your_app_key
      ```
 
-5. Run the application:
-```bash
-streamlit run app.py
-```
+5. **Run the Streamlit app:**
+   ```sh
+   streamlit run app.py
+   ```
 
-## Usage
+6. **Open the app in your browser:**
+   - Usually at [http://localhost:8501](http://localhost:8501)
 
-1. Select a country from the dropdown menu
-2. Choose a job category or enter a specific job title
-3. Use the filters in the sidebar to narrow down results:
-   - Location
-   - Job roles
-   - Required skills
-   - Salary range
-4. Explore the different tabs for various insights:
-   - Salary Distribution
-   - Top Companies
-   - Role Comparison
-   - Skills Correlation
+---
 
-## Technologies Used
+## 📝 Usage
+- Enter a tech stack or keyword (e.g., `python`, `react`, `data science`)
+- (Optional) Enter a location (e.g., `Bangalore`, `Mumbai`, or leave blank for all India)
+- Use sidebar filters to further refine by job title or company
+- Download the filtered job data as CSV
+- All API credentials are loaded securely from `.env`
 
-- Python
-- Streamlit
-- Pandas
-- Matplotlib
-- Seaborn
-- Scikit-learn
-- Adzuna API
+---
 
-## Contributing
+## 🔒 Security
+- **Never commit your `.env` file or API keys to git!**
+- `.gitignore` is set up to protect secrets and virtual environments
 
-Feel free to submit issues and enhancement requests!
+---
 
-## License
+## 📦 Dependencies
+- streamlit
+- pandas
+- requests
+- python-dotenv
+- spacy
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+---
+
+## 🙏 Credits
+- [Adzuna API](https://developer.adzuna.com/) for real-time job data
+- [spaCy](https://spacy.io/) for NLP
+- [Streamlit](https://streamlit.io/) for the dashboard
+
+---
+
+## 📄 License
+MIT License (see LICENSE file)
 

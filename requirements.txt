@@ -1,11 +1,5 @@
 streamlit
 pandas
-matplotlib
-seaborn
-scikit-learn
-pydeck
-flask
 requests
 python-dotenv
-flask_cors
 spacy
